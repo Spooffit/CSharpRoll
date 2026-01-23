@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Spectre.Console" Version="0.54.0" />
+    <PackageVersion Include="Microsoft.Build" Version="18.0.2" ExcludeAssets="runtime" />
+    <PackageVersion Include="Microsoft.Build.Framework" Version="18.0.2" ExcludeAssets="runtime" />
+    <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.0.2" ExcludeAssets="runtime" />
+    <PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
+    <PackageVersion Include="Spectre.Console.Cli" Version="0.53.1" />
+  </ItemGroup>
+</Project>

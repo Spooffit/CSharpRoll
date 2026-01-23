@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>CSharpRoll.Console</PackageId>
+        <AssemblyName>CSharpRoll.Core</AssemblyName>
+    </PropertyGroup>
+
+</Project>

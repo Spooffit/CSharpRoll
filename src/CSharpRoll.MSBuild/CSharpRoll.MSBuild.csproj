@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>CSharpRoll.MSBuild</PackageId>
+        <AssemblyName>CSharpRoll.MSBuild</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime"/>
+      <PackageReference Include="Microsoft.Build.Framework" ExcludeAssets="runtime"/>
+      <PackageReference Include="Microsoft.Build.Locator" />
+      <PackageReference Include="Microsoft.Build.Utilities.Core" ExcludeAssets="runtime"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CSharpRoll.Core\CSharpRoll.Core.csproj" />
+    </ItemGroup>
+
+</Project>
