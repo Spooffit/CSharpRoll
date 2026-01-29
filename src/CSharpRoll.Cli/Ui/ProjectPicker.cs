@@ -50,11 +50,10 @@ public static class ProjectPicker
         var prompt = new SelectionPrompt<string>()
             .Title("Multiple solutions found. Choose one:")
             .PageSize(12)
-            .AddChoices(allSlns.Select(Path.GetFileName)!);
+            .UseConverter(Path.GetFileName)
+            .AddChoices(allSlns); 
 
-        var chosenName = AnsiConsole.Prompt(prompt);
-        var chosenPath = allSlns.First(x =>
-            string.Equals(Path.GetFileName(x), chosenName, StringComparison.OrdinalIgnoreCase));
+        var chosenPath = AnsiConsole.Prompt(prompt);
         return Path.GetFullPath(chosenPath);
     }
 
