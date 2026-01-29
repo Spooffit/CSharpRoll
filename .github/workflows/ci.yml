@@ -9,28 +9,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
 
       - name: Restore
         run: dotnet restore
 
-      - name: Build
-        run: dotnet build -c ToolRelease --no-restore
+      - name: Build (solution, Release)
+        run: dotnet build CSharpRoll.sln -c Release --no-restore
 
-      - name: Test
-        run: dotnet test -c ToolRelease --no-build
+      - name: Test (Release)
+        run: dotnet test CSharpRoll.sln -c Release --no-build
 
-      - name: Pack tool
+      - name: Build tool project (ToolRelease)
+        run: dotnet build src/CSharpRoll.Cli/CSharpRoll.Cli.csproj -c ToolRelease --no-restore
+
+      - name: Pack tool (ToolRelease)
         run: dotnet pack src/CSharpRoll.Cli/CSharpRoll.Cli.csproj -c ToolRelease -o artifacts --no-build
 
-      - name: Upload nupkg artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: csharproll-nupkg
           path: artifacts/*.nupkg
