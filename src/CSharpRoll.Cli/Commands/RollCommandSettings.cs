@@ -9,10 +9,17 @@ namespace CSharpRoll.Cli.Commands;
 public sealed class RollCommandSettings : CommandSettings
 {
     /// <summary>
+    /// Path to directory where search .sln / .slnx files
+    /// </summary>
+    [CommandOption("-d|--dir <DIR>")]
+    [Description("Path to directory where search .sln / .slnx files.")]
+    public string? DirectoryPath { get; init; }
+    
+    /// <summary>
     /// Gets the solution path.
     /// </summary>
     [CommandOption("-s|--sln <SLN>")]
-    [Description("Path to .sln. If omitted, the tool searches current directory.")]
+    [Description("Path to .sln / .slnx. If omitted, the tool searches current directory.")]
     public string? SolutionPath { get; init; }
 
     /// <summary>

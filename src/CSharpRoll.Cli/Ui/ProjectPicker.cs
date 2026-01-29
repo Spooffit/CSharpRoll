@@ -17,31 +17,43 @@ public static class ProjectPicker
         if (!string.IsNullOrWhiteSpace(explicitSlnPath))
         {
             var full = Path.GetFullPath(explicitSlnPath);
+
             if (!File.Exists(full))
                 throw new FileNotFoundException($"Solution not found: {full}");
-            if (!full.EndsWith(".sln", StringComparison.OrdinalIgnoreCase))
-                throw new ArgumentException("Only .sln files are supported.");
+
+            string fileExtension = Path.GetExtension(full);
+            
+            if (!fileExtension.Equals(".sln", StringComparison.OrdinalIgnoreCase) &&
+                !fileExtension.Equals(".slnx", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Only .sln / .slnx files are supported.");
+
             return full;
         }
 
         var cwd = Directory.GetCurrentDirectory();
+        
         var slns = Directory.GetFiles(cwd, "*.sln", SearchOption.TopDirectoryOnly)
+            .ToList();
+        var slnxs = Directory.GetFiles(cwd, "*.slnx", SearchOption.TopDirectoryOnly)
+            .ToList();
+        
+        var allSlns = slnxs.Union(slns)
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        if (slns.Count == 0)
-            throw new FileNotFoundException($"No .sln found in {cwd}. Use --sln <path>.");
+        if (allSlns.Count == 0)
+            throw new FileNotFoundException($"No .sln / .slnx found in {cwd}. Use --sln <path>.");
 
-        if (slns.Count == 1)
-            return Path.GetFullPath(slns[0]);
+        if (allSlns.Count == 1)
+            return Path.GetFullPath(allSlns[0]);
 
         var prompt = new SelectionPrompt<string>()
             .Title("Multiple solutions found. Choose one:")
             .PageSize(12)
-            .AddChoices(slns.Select(Path.GetFileName)!);
+            .AddChoices(allSlns.Select(Path.GetFileName)!);
 
         var chosenName = AnsiConsole.Prompt(prompt);
-        var chosenPath = slns.First(x =>
+        var chosenPath = allSlns.First(x =>
             string.Equals(Path.GetFileName(x), chosenName, StringComparison.OrdinalIgnoreCase));
         return Path.GetFullPath(chosenPath);
     }

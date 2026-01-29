@@ -18,7 +18,7 @@ public sealed class RollCommand : Command<RollCommandSettings>
         try
         {
             MsBuildBootstrapper.Register();
-
+            
             var slnPath = ProjectPicker.ResolveSolution(settings.SolutionPath);
             var slnDir = Path.GetDirectoryName(slnPath)!;
 
