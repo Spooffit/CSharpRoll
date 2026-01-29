@@ -120,3 +120,5 @@ UpgradeLog*.XML
 src/.vs/config/applicationhost.config
 
 nupkgs
+
+artifacts
