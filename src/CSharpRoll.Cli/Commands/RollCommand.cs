@@ -3,22 +3,22 @@ using CSharpRoll.Core;
 using CSharpRoll.MSBuild;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using System.Text;
 
 namespace CSharpRoll.Cli.Commands;
 
 /// <summary>
-///     Roll command implementation.
+/// Roll command implementation.
 /// </summary>
 public sealed class RollCommand : Command<RollCommandSettings>
 {
     /// <inheritdoc />
-    public override int Execute(CommandContext context, RollCommandSettings settings,
-        CancellationToken cancellationToken)
+    public override int Execute(CommandContext context, RollCommandSettings settings, CancellationToken cancellationToken)
     {
         try
         {
             MsBuildBootstrapper.Register();
-            
+
             var slnPath = ProjectPicker.ResolveSolution(settings.SolutionPath);
             var slnDir = Path.GetDirectoryName(slnPath)!;
 
@@ -46,7 +46,11 @@ public sealed class RollCommand : Command<RollCommandSettings>
 
             var outputPath = ProjectPicker.ResolveOutput(settings.OutputPath, options.Format, slnDir);
 
-            var allFiles = new List<string>();
+            var filePathComparer = OperatingSystem.IsWindows()
+                ? StringComparer.OrdinalIgnoreCase
+                : StringComparer.Ordinal;
+
+            var projectBundles = new List<RolledProject>();
             var warnings = new List<string>();
 
             AnsiConsole.Status().Start("Collecting files...", ctx =>
@@ -56,29 +60,39 @@ public sealed class RollCommand : Command<RollCommandSettings>
                     ctx.Status($"Collecting: [cyan]{Markup.Escape(proj.Name)}[/]");
 
                     var res = ProjectSourceCollector.Collect(proj.FullPath, options, settings.NoMsbuild);
-                    allFiles.AddRange(res.Files);
+
+                    // per-project unique + sorted (global dedupe is in writer)
+                    var files = UniqueFileSet.MakeUnique(res.Files);
+                    files.Sort(filePathComparer);
+
+                    var csprojRaw = ReadTextRobust(proj.FullPath);
+
+                    projectBundles.Add(new RolledProject(
+                        Name: proj.Name,
+                        CsprojPath: proj.FullPath,
+                        CsprojRaw: csprojRaw,
+                        Files: files));
+
                     warnings.AddRange(res.Warnings.Select(w => $"[{proj.Name}] {w}"));
                 }
             });
 
-            var unique = UniqueFileSet.MakeUnique(allFiles);
-            unique.Sort(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
-
-            if (unique.Count == 0)
+            if (projectBundles.Count == 0 || projectBundles.All(p => p.Files.Count == 0))
             {
                 AnsiConsole.MarkupLine("[red]No C# files collected.[/]");
                 return 3;
             }
 
-            RollWriter.Write(
-                outputPath,
-                unique,
-                slnDir,
-                selected.Select(p => p.Name).ToList(),
-                options);
+            // total unique (for console output)
+            var totalUnique = new HashSet<string>(filePathComparer);
+            foreach (var p in projectBundles)
+            foreach (var f in p.Files)
+                totalUnique.Add(f);
+
+            RollWriter.Write(outputPath, projectBundles, slnDir, options);
 
             AnsiConsole.MarkupLine($"[green]Done.[/] Output: [cyan]{Markup.Escape(outputPath)}[/]");
-            AnsiConsole.MarkupLine($"Projects: [cyan]{selected.Count}[/], Files: [cyan]{unique.Count}[/]");
+            AnsiConsole.MarkupLine($"Projects: [cyan]{projectBundles.Count}[/], Files: [cyan]{totalUnique.Count}[/]");
 
             if (warnings.Count > 0)
             {
@@ -94,6 +108,18 @@ public sealed class RollCommand : Command<RollCommandSettings>
             AnsiConsole.MarkupLine("[red]Fatal error:[/]");
             AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
             return 1;
+        }
+    }
+
+    private static string ReadTextRobust(string path)
+    {
+        try
+        {
+            return File.ReadAllText(path, new UTF8Encoding(false, true));
+        }
+        catch
+        {
+            return File.ReadAllText(path);
         }
     }
 }
