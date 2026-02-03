@@ -11,6 +11,7 @@
         <Description>Rolls selected C# projects from a solution into a single file.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/Spooffit/CSharpRoll</RepositoryUrl>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='ToolRelease'">

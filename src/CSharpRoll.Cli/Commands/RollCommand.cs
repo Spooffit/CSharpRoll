@@ -35,7 +35,7 @@ public sealed class RollCommand : Command<RollCommandSettings>
                 AnsiConsole.MarkupLine("[yellow]Nothing selected.[/]");
                 return 0;
             }
-
+            
             var options = new RollOptions
             {
                 IncludeGenerated = settings.IncludeGenerated,
@@ -89,7 +89,39 @@ public sealed class RollCommand : Command<RollCommandSettings>
             foreach (var f in p.Files)
                 totalUnique.Add(f);
 
-            RollWriter.Write(outputPath, projectBundles, slnDir, options);
+            var rolledFiles = new HashSet<string>(filePathComparer);
+            foreach (var p in projectBundles)
+            foreach (var f in p.Files)
+                rolledFiles.Add(f);
+
+            RollDiagnostics? diags = null;
+
+            if (!settings.NoMsbuild)
+            {
+                AnsiConsole.Status().Start("Running analyzers...", _ =>
+                {
+                    diags = AnalyzerDiagnosticsCollector.Collect(
+                        solutionPath: slnPath,
+                        selectedProjectCsprojPaths: projectBundles.Select(p => p.CsprojPath).ToList(),
+                        rolledFiles: rolledFiles,
+                        includeGenerated: settings.IncludeGenerated,
+                        cancellationToken: cancellationToken);
+                });
+            }
+            else
+            {
+                diags = new RollDiagnostics();
+                if (settings.NoMsbuild)
+                {
+                    diags.SolutionDiagnostics.Add(new RollDiagnostic(
+                        RollDiagnosticSeverity.Warning,
+                        "ANALYZERS",
+                        "Analyzer collection skipped because --no-msbuild is enabled.",
+                        null, null, null));
+                }
+            }
+            
+            RollWriter.Write(outputPath, projectBundles, slnDir, options, slnPath, diags);
 
             AnsiConsole.MarkupLine($"[green]Done.[/] Output: [cyan]{Markup.Escape(outputPath)}[/]");
             AnsiConsole.MarkupLine($"Projects: [cyan]{projectBundles.Count}[/], Files: [cyan]{totalUnique.Count}[/]");

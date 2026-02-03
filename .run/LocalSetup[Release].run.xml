@@ -1,5 +1,5 @@
 ﻿<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="LocalSetup" type="ShConfigurationType">
+  <configuration default="false" name="LocalSetup[Release]" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="$ErrorActionPreference='Stop'; dotnet pack src/CSharpRoll.Cli/CSharpRoll.Cli.csproj -c ToolRelease -o ./artifacts; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; dotnet tool update --global --add-source ./artifacts CSharpRoll; if ($LASTEXITCODE -ne 0) { dotnet tool install --global --add-source ./artifacts CSharpRoll; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } }; csharproll --help" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />

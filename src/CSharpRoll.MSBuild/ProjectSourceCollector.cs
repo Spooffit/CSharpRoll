@@ -49,6 +49,8 @@ public static class ProjectSourceCollector
 
         var globalProps = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
+            // TODO: Analyzer language
+            ["PreferredUILang"] = "en-US",
             ["DesignTimeBuild"] = "true",
             ["BuildProjectReferences"] = "false",
             ["SkipCompilerExecution"] = "true",

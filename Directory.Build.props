@@ -23,4 +23,10 @@
         <EnablePackageValidation>true</EnablePackageValidation>
         <ContinuousIntegrationBuild Condition="'$(CI)'=='true'">true</ContinuousIntegrationBuild>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Update="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" />
+        <PackageReference Update="Microsoft.Build.Framework" ExcludeAssets="runtime" PrivateAssets="all" />
+        <PackageReference Update="Microsoft.Build.Utilities.Core" ExcludeAssets="runtime" PrivateAssets="all" />
+    </ItemGroup>
 </Project>

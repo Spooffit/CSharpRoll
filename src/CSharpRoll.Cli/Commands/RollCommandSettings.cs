@@ -35,7 +35,7 @@ public sealed class RollCommandSettings : CommandSettings
     [CommandOption("-o|--out <OUT>")]
     [Description("Output file path. Default: CSharpRoll.cs / CSharpRoll.md in solution directory.")]
     public string? OutputPath { get; init; }
-
+    
     /// <summary>
     /// Gets output format: cs or md.
     /// </summary>

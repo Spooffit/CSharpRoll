@@ -1,7 +1,7 @@
 ﻿using CSharpRoll.Core;
 using Microsoft.Build.Evaluation;
 
-namespace CSharpRoll.Cli;
+namespace CSharpRoll.MSBuild;
 
 internal static class ProjectSnapshotReader
 {
